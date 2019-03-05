@@ -129,11 +129,10 @@ void ofxClipper::ofPath_to_Polygons(ofPath& path,ClipperLib::Paths& polygons) {
     return ofxPolylines_to_Polygons(path.getOutline(),polygons);
 }
 
-ClipperLib::Path ofxClipper::ofPolyline_to_Polygon(ofPolyline& polyline) {
-	vector<ofPoint> verts = polyline.getVertices();
-    vector<ofPoint>::iterator iter;
+ClipperLib::Path ofxClipper::ofPolyline_to_Polygon(const ofPolyline& polyline) {
+	vector<glm::vec3> verts = polyline.getVertices();
     ClipperLib::Path polygon;
-    for(iter = verts.begin(); iter != verts.end(); iter++) {
+    for(auto iter = verts.begin(); iter != verts.end(); iter++) {
         ClipperLib::IntPoint ip((*iter).x * clipperGlobalScale, 
                                 (*iter).y * clipperGlobalScale);
         polygon.push_back(ip);
@@ -142,9 +141,8 @@ ClipperLib::Path ofxClipper::ofPolyline_to_Polygon(ofPolyline& polyline) {
 }
 
 
-void ofxClipper::ofxPolylines_to_Polygons(ofxPolylines& polylines,ClipperLib::Paths& polygons) {
-    vector<ofPolyline>::iterator iter;
-    for(iter = polylines.begin(); iter != polylines.end(); iter++) {
+void ofxClipper::ofxPolylines_to_Polygons(const ofxPolylines& polylines,ClipperLib::Paths& polygons) {
+    for(auto iter = polylines.begin(); iter != polylines.end(); iter++) {
         polygons.push_back(ofPolyline_to_Polygon((*iter)));
     }
 }
@@ -169,15 +167,6 @@ void ofxClipper::polygons_to_ofxPolylines(ClipperLib::Paths& polygons,ofxPolylin
         polylines.push_back(polygon_to_ofPolyline((*iter)));
     }
 }
-
-
-void ofxClipper::polygons_to_ofPath(ClipperLib::Paths& polygons,ofPath& path) {
-    vector<ClipperLib::Path>::iterator iter;
-    for(iter = polygons.begin(); iter != polygons.end(); iter++) {
-        path.getOutline().push_back(polygon_to_ofPolyline((*iter)));
-    }
-}
-
 
 // utility functions
 
@@ -206,24 +195,6 @@ void ofxClipper::OffsetPolylines(ofxPolylines &in_polys,
     ClipperLib::OffsetPaths(in,out,offset,(ClipperLib::JoinType)jointype,(ClipperLib::EndType_)endtype,MiterLimit);
     polygons_to_ofxPolylines(out,out_polys);
 }
-
-
-void ofxClipper::OffsetPath(ofPath &in_path,
-                                 ofPath &out_path,
-                                 double offset,
-                                 ofxClipperJoinType jointype,
-                                 ofxClipperEndType endtype,
-                                 double MiterLimit) {
-    
-    offset = offset * clipperGlobalScale;
-    MiterLimit = MiterLimit * clipperGlobalScale;
-    
-    ClipperLib::Paths in, out;
-    ofPath_to_Polygons(in_path,in);
-    ClipperLib::OffsetPaths(in,out,offset,(ClipperLib::JoinType)jointype,(ClipperLib::EndType_)endtype,MiterLimit);
-    polygons_to_ofPath(out,out_path);
-}
-
 
 
 void ofxClipper::SimplifyPolyline(ofPolyline &in_poly, 
