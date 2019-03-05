@@ -62,11 +62,13 @@ std::vector<ofPolyline> Clipper::getClipped(ClipperLib::ClipType clipType,
     try
     {
         ClipperLib::Paths out;
-
+        ClipperLib::PolyTree tree;
         bool success = Execute(clipType,
-                               out,
+                               tree,
                                toClipper(subFillType),
                                toClipper(clipFillType));
+
+        ClipperLib::PolyTreeToPaths(tree, out);
 
         results = toOf(out, true, scale);
 
